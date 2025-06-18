@@ -1,0 +1,164 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WebGIS Persebaran Pendidikan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Geologica', sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .header {
+      background-color: #4b0082;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 10px 30px;
+    }
+
+    .header img {
+      height: 60px;
+      margin-right: 20px;
+    }
+
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .main-title {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 24px;
+      font-family: 'Geologica', sans-serif;
+      font-weight: bold;
+      color: #333;
+    }
+
+    #map {
+      height: 500px;
+      width: 90%;
+      margin: 20px auto;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+
+    .upload-section {
+      text-align: center;
+      margin: 20px auto;
+    }
+
+    .upload-section label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .upload-section input[type="file"] {
+      padding: 6px 12px;
+      background-color: #4b0082;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .description {
+      max-width: 800px;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    .description p {
+      font-size: 16px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .footer {
+      background-color: #4b0082;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      font-family: 'Playfair Display', serif;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="Logo Unila.png" alt="Logo UNILA">
+    <div class="header-title">Selamat Datang di Pemanfaatan Sistem Informasi Geografis Berbasis Web</div>
+  </div>
+
+  <div class="main-title">Peta Persebaran Pendidikan di Kabupaten Pringsewu</div>
+
+  <div id="map"></div>
+
+  <div class="upload-section">
+    <label for="upload">Silakan input file format .geojson untuk memunculkan tema peta:</label>
+    <input type="file" id="upload" accept=".geojson" />
+  </div>
+
+  <div class="description" id="descBox">
+    <p><strong>Pendidikan</strong> merupakan proses pembelajaran pengetahuan, keterampilan, dan nilai yang diwariskan dari satu generasi ke generasi berikutnya. Pendidikan memainkan peran penting dalam membentuk karakter dan masa depan individu serta pembangunan sosial dan ekonomi suatu wilayah.</p>
+
+    <p><strong>Mengapa pendidikan penting?</strong> Karena pendidikan tidak hanya memberikan pengetahuan dan keterampilan, tetapi juga meningkatkan kualitas hidup, memperluas kesempatan kerja, dan mengurangi kemiskinan. Pendidikan adalah fondasi dari pembangunan yang berkelanjutan dan masyarakat yang adil.</p>
+
+    <p><strong>Pringsewu dikenal sebagai "Kota Pendidikan"</strong> karena memiliki konsentrasi lembaga pendidikan yang cukup padat, mulai dari jenjang dasar hingga perguruan tinggi. Pemerintah daerah juga aktif mendorong peningkatan mutu pendidikan, serta menyediakan akses yang luas bagi masyarakat terhadap layanan pendidikan.</p>
+  </div>
+
+  <div class="footer">
+    Sumber data: Badan Pusat Statistik Kabupaten Pringsewu<br>
+    Dibuat oleh: Mentari (2213034048)
+  </div>
+
+  <script>
+    // Inisialisasi peta
+    const map = L.map('map').setView([-5.382374, 104.956930], 10);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Fungsi untuk menambahkan file GeoJSON
+    document.getElementById('upload').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file && file.name.endsWith('.geojson')) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const geojson = JSON.parse(event.target.result);
+          L.geoJSON(geojson, {
+            onEachFeature: function (feature, layer) {
+              let popup = '';
+              for (const key in feature.properties) {
+                popup += `<strong>${key}</strong>: ${feature.properties[key]}<br>`;
+              }
+              layer.bindPopup(popup);
+            }
+          }).addTo(map);
+          document.getElementById('descBox').style.display = 'block'; // Tampilkan deskripsi
+        };
+        reader.readAsText(file);
+      } else {
+        alert("Mohon unggah file berekstensi .geojson!");
+      }
+    });
+  </script>
+
+</body>
+</html>
